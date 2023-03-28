@@ -1,19 +1,18 @@
-name: Build and test
-run-name: ${{ github.actor }} is running docker build and test
+name: prod deploy
+run-name: ${{ github.actor }} deploying to elasticbeanstalk
 # specifies the trigger of this workflow uses push event. This workflow is trrigered every time someone pushes a change to the repo
 on:
-  pull_request:
   push:
     branches:
       - master # check your repo, your default branch might be master!
  
-# Groups together all the jobs that run in the "Build and test" workflow
+# Groups together all the jobs that run in the "prod deploy" workflow
 jobs:
   # Defines a job named build-and-test
-  build-and-test:
+  prod-deploy:
     #configures the job to run on the latest version of ubuntu
     runs-on: ubuntu-latest
-    #groups together all the steps that run in the build-and-test job. Each item nested under this section is a separate action or sh script
+    #groups together all the steps that run in the prod deploy job. Each item nested under this section is a separate action or sh script
     steps:
       # the "uses" keyworkd specifies that this step will run v3 of the action/checkout action. This is an action that checks out your repository onto the runner, allowing you to run scripts or other actions against your code. You should use the checkout action any time your workflow will run against the repository code
       - uses: actions/checkout@v3
@@ -25,21 +24,21 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       # build the docker image
       - name: Build the Docker image
-        run: docker build -t gioxchai/docker-react -f Dockerfile.dev .
-      - name: Run npm test inside the container
-        run: docker run -e CI=true gioxchai/docker-react npm test
+        run: docker build -t gioxchai/docker-react .
+#      - name: Run npm test inside the container
+#        run: docker run -e CI=true gioxchai/docker-react npm test
 
-#      - name: Generate deployment package
-#        run: zip -r deploy.zip . -x '*.git*'
-#
-#      - name: Deploy to EB
-#        uses: einaregilsson/beanstalk-deploy@v21
-#        with:
-#          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
-#          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-#          application_name: docker-react
-#          environment_name: Dockerreact-env
-#          existing_bucket_name: elasticbeanstalk-ap-northeast-1-675755726267
-#          region: ap-northeast-1
-#          version_label: ${{ github.sha }}
-#          deployment_package: deploy.zip
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          application_name: docker-react
+          environment_name: Dockerreact-env
+          existing_bucket_name: elasticbeanstalk-ap-northeast-1-675755726267
+          region: ap-northeast-1
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
