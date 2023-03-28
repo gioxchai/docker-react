@@ -7,6 +7,8 @@ COPY . .
 RUN npm run build
 
 FROM nginx
+# for elasticbeanstalk
+EXPOSE 80
 # copy from another build to nginx default html dir
 COPY --from=builder /app/build /usr/share/nginx/html
 
