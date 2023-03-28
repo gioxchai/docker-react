@@ -1,14 +1,29 @@
-name: Deploy Frontend
+name: Build and test
+run-name: ${{ github.actor }} is running docker build and test
+# specifies the trigger of this workflow uses push event. This workflow is trrigered every time someone pushes a change to the repo
 on:
   push:
     branches:
       - master # check your repo, your default branch might be master!
  
+# Groups together all the jobs that run in the "Build and test" workflow
 jobs:
-  build:
+  # Defines a job named build-and-test
+  build-and-test:
+    #configures the job to run on the latest version of ubuntu
     runs-on: ubuntu-latest
+    #groups together all the steps that run in the build-and-test job. Each item nested under this section is a separate action or sh script
     steps:
-      - uses: actions/checkout@v2
-      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker build -t gioxchai/docker-react -f Dockerfile.dev .
-      - run: docker run -e CI=true gioxchai/docker-react npm test
+      # the "uses" keyworkd specifies that this step will run v3 of the action/checkout action. This is an action that checks out your repository onto the runner, allowing you to run scripts or other actions against your code. You should use the checkout action any time your workflow will run against the repository code
+      - uses: actions/checkout@v3
+      # Docker login
+      - name: Login to Dockerhub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      # build the docker image
+      - name: Build the Docker image
+        run: docker build -t gioxchai/docker-react -f Dockerfile.dev .
+      - name: Run npm test inside the container
+        run: docker run -e CI=true gioxchai/docker-react npm test
