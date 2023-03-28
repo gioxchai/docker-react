@@ -2,6 +2,7 @@ name: Build and test
 run-name: ${{ github.actor }} is running docker build and test
 # specifies the trigger of this workflow uses push event. This workflow is trrigered every time someone pushes a change to the repo
 on:
+  pull_request:
   push:
     branches:
       - master # check your repo, your default branch might be master!
