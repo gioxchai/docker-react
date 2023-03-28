@@ -1,22 +1,8 @@
 version: '3' 
 services:
   web:
-    restart: always #one of the restart policy
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    user: node
-    volumes:
-      - .:/app
-      - /app/node_modules
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
-  tests:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    user: node
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: ["npm", "run", "test"]
+      - "80:80"
